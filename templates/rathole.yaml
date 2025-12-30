@@ -1,0 +1,11 @@
+id: rathole
+nameFa: رات‌هول
+nameEn: Rathole Tunnel
+category: Tunnels
+ports:
+  - 2333
+supportsOffline: true
+requirements: []
+defaultSettings:
+  server_port: 2333
+  client_token: ""

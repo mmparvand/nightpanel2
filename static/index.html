@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WarOps NightPanel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors">
+  <div class="max-w-6xl mx-auto p-6 space-y-6" id="app">
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <h1 class="text-3xl font-bold">WarOps NightPanel</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">User Install Wizard</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" id="rtlToggle" class="accent-indigo-500">
+          <span>RTL</span>
+        </label>
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" id="themeToggle" class="accent-indigo-500">
+          <span>Dark</span>
+        </label>
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" id="langToggle" class="accent-indigo-500">
+          <span>فارسی</span>
+        </label>
+      </div>
+    </header>
+
+    <div class="bg-white dark:bg-slate-800 shadow rounded-lg p-4 flex items-center justify-between">
+      <div>
+        <p class="text-lg font-semibold" id="networkLabel">Network Mode</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Online / Offline aware installs</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400">Online</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="networkToggle" class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-indigo-600"></div>
+          <span class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition"></span>
+        </label>
+        <span class="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400">Offline</span>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="col-span-2 space-y-4">
+        <div class="step-card" data-step="1">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">1) Server Info</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Name, host, port, username</span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3 mt-3">
+            <div>
+              <label class="text-sm font-medium">Server Name</label>
+              <input id="serverName" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="My VPS">
+            </div>
+            <div>
+              <label class="text-sm font-medium">Host</label>
+              <input id="serverHost" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="1.2.3.4">
+            </div>
+            <div>
+              <label class="text-sm font-medium">Port</label>
+              <input id="serverPort" type="number" value="22" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900">
+            </div>
+            <div>
+              <label class="text-sm font-medium">Username</label>
+              <input id="serverUser" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="root">
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="2">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">2) Authentication</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Password or SSH key</span>
+          </div>
+          <div class="flex gap-4 mt-3">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="authType" value="password" checked class="accent-indigo-600">
+              <span>Password</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="authType" value="key" class="accent-indigo-600">
+              <span>SSH Key</span>
+            </label>
+          </div>
+          <div id="passwordBox" class="mt-3">
+            <label class="text-sm font-medium">Password</label>
+            <input id="authPassword" type="password" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900">
+          </div>
+          <div id="keyBox" class="mt-3 hidden">
+            <label class="text-sm font-medium">Private Key</label>
+            <textarea id="authKey" rows="5" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="-----BEGIN KEY-----"></textarea>
+            <label class="text-sm font-medium mt-2">Passphrase (optional)</label>
+            <input id="authKeyPassphrase" type="password" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900">
+          </div>
+          <div class="mt-3 flex items-center gap-2">
+            <input type="checkbox" id="dontStore" class="accent-indigo-600">
+            <label class="text-sm">Don't store credentials locally</label>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">3) Test Connection</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Fingerprint + preflight</span>
+          </div>
+          <div class="mt-3 flex items-center gap-2">
+            <input id="expectedFingerprint" class="flex-1 rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="Expected SHA256 fingerprint (optional)">
+            <button id="testBtn" class="px-3 py-2 bg-indigo-600 text-white rounded">Test SSH</button>
+          </div>
+          <div id="testResult" class="mt-3 text-sm space-y-1"></div>
+        </div>
+
+        <div class="step-card" data-step="4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">4) Templates</h2>
+            <div class="flex gap-2 text-sm">
+              <button data-cat="All" class="cat-tab px-3 py-1 rounded bg-indigo-600 text-white">All</button>
+              <button data-cat="Core" class="cat-tab px-3 py-1 rounded border border-indigo-600 text-indigo-600">Core</button>
+              <button data-cat="Panels" class="cat-tab px-3 py-1 rounded border border-indigo-600 text-indigo-600">Panels</button>
+              <button data-cat="Tunnels" class="cat-tab px-3 py-1 rounded border border-indigo-600 text-indigo-600">Tunnels</button>
+            </div>
+          </div>
+          <div id="templateList" class="mt-3 grid md:grid-cols-2 gap-3"></div>
+          <div class="mt-4">
+            <h3 class="font-semibold">Selected Templates</h3>
+            <div id="selectedList" class="mt-2 space-y-2"></div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="5">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">5) Configuration</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">SSL, Firewall, Network</span>
+          </div>
+          <div class="mt-4">
+            <div class="border-b border-gray-200 dark:border-gray-700 flex gap-4 text-sm" id="configTabs">
+              <button data-tab="ssl" class="config-tab px-3 py-2 border-b-2 border-indigo-600">SSL</button>
+              <button data-tab="firewall" class="config-tab px-3 py-2">Firewall</button>
+              <button data-tab="network" class="config-tab px-3 py-2">Network</button>
+            </div>
+            <div class="mt-3 space-y-3">
+              <div data-pane="ssl">
+                <label class="text-sm font-medium">Enable SSL</label>
+                <input type="checkbox" id="enableSsl" class="ml-2 accent-indigo-600">
+                <div class="grid md:grid-cols-2 gap-3 mt-2">
+                  <div>
+                    <label class="text-sm font-medium">Domain</label>
+                    <input id="sslDomain" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="example.com">
+                  </div>
+                  <div>
+                    <label class="text-sm font-medium">Email</label>
+                    <input id="sslEmail" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="admin@example.com">
+                  </div>
+                </div>
+              </div>
+              <div data-pane="firewall" class="hidden">
+                <div class="flex items-center gap-2">
+                  <input type="checkbox" id="disableFirewall" class="accent-indigo-600">
+                  <label class="text-sm font-medium">Disable Firewall</label>
+                </div>
+                <div class="grid md:grid-cols-2 gap-3 mt-2">
+                  <div>
+                    <label class="text-sm font-medium">Whitelist Ports (comma separated)</label>
+                    <input id="whitelistPorts" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="80,443">
+                  </div>
+                  <div>
+                    <label class="text-sm font-medium">Blacklist IPs (comma separated)</label>
+                    <input id="blacklistIps" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="1.1.1.1">
+                  </div>
+                </div>
+              </div>
+              <div data-pane="network" class="hidden">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Offline settings for mirrors and proxies</p>
+                <div class="grid md:grid-cols-3 gap-3 mt-2">
+                  <div>
+                    <label class="text-sm font-medium">APT Proxy</label>
+                    <input id="aptProxy" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="http://proxy:3142">
+                  </div>
+                  <div>
+                    <label class="text-sm font-medium">Docker Registry</label>
+                    <input id="dockerRegistry" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="https://registry.local">
+                  </div>
+                  <div>
+                    <label class="text-sm font-medium">Artifact Mirror</label>
+                    <input id="artifactMirror" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" placeholder="http://mirror.local">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex justify-end">
+            <button id="startBtn" class="px-4 py-2 bg-indigo-600 text-white rounded">Start Run</button>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="6">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">6) Results</h2>
+            <span class="text-xs text-gray-500 dark:text-gray-400">Live logs and summary</span>
+          </div>
+          <div class="mt-3">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded h-3 overflow-hidden">
+              <div id="progressBar" class="h-3 bg-indigo-600" style="width: 0%"></div>
+            </div>
+            <p class="text-sm mt-2">Status: <span id="runStatus">idle</span> | Step: <span id="runStep">-</span></p>
+            <div class="mt-3 bg-gray-900 text-green-200 rounded p-3 h-64 overflow-y-auto font-mono text-xs" id="logBox"></div>
+            <div class="mt-3 flex gap-2">
+              <button id="copyOutputs" class="px-3 py-2 rounded border border-indigo-600 text-indigo-600">Copy Outputs</button>
+              <a id="downloadLogs" href="#" class="px-3 py-2 rounded bg-indigo-600 text-white">Download Logs</a>
+            </div>
+            <div id="summary" class="mt-3 text-sm space-y-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="bg-white dark:bg-slate-800 shadow rounded-lg p-4 space-y-3">
+        <h3 class="text-lg font-semibold">Helper</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Follow steps to prepare your server. Use Offline mode during connectivity outages.</p>
+        <div class="text-sm space-y-1">
+          <p><strong>Templates:</strong> Choose panels, tunnels, and core services.</p>
+          <p><strong>Settings:</strong> Configure SSL, firewall, offline mirrors.</p>
+          <p><strong>Live logs:</strong> Watch install progress with SSE stream.</p>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
+          <a href="/admin" class="text-indigo-600 hover:underline text-sm">Go to Admin Panel</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center">
+    <div class="bg-white dark:bg-slate-800 rounded-lg p-5 w-full max-w-md">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold" id="modalTitle">Template Settings</h3>
+        <button id="closeModal" class="text-sm text-gray-500 hover:text-gray-800">Close</button>
+      </div>
+      <div id="modalBody" class="mt-3 space-y-2 text-sm"></div>
+      <div class="mt-4 flex justify-end">
+        <button id="saveSettings" class="px-3 py-2 bg-indigo-600 text-white rounded">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      templates: [],
+      selected: [],
+      currentTemplateId: null,
+      runId: null,
+      outputs: {},
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    const logBox = $("logBox");
+    function addLog(line, level = "info") {
+      const row = document.createElement("div");
+      row.textContent = line;
+      row.className = level === "error" ? "text-red-400" : level === "success" ? "text-green-300" : "text-gray-200";
+      logBox.appendChild(row);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function renderTemplates(category = "All") {
+      const list = $("templateList");
+      list.innerHTML = "";
+      state.templates
+        .filter((t) => category === "All" || t.category === category)
+        .forEach((tpl) => {
+          const card = document.createElement("div");
+          card.className = "border border-gray-200 dark:border-gray-700 rounded p-3 flex flex-col gap-2";
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-semibold">${tpl.nameEn} <span class="text-gray-500">/ ${tpl.nameFa}</span></p>
+                <p class="text-xs text-gray-500">${tpl.category}</p>
+              </div>
+              <button class="px-2 py-1 text-sm bg-indigo-600 text-white rounded add-btn" data-id="${tpl.id}">Add</button>
+            </div>
+            <p class="text-xs text-gray-500">Ports: ${tpl.ports.join(", ") || "N/A"}</p>
+            <p class="text-xs text-gray-500">Offline: ${tpl.supportsOffline ? "Yes" : "No"}</p>
+          `;
+          list.appendChild(card);
+        });
+    }
+
+    function renderSelected() {
+      const box = $("selectedList");
+      box.innerHTML = "";
+      state.selected.forEach((sel, idx) => {
+        const meta = state.templates.find((t) => t.id === sel.id);
+        const wrapper = document.createElement("div");
+        wrapper.className = "border border-dashed border-indigo-300 rounded p-2 flex items-center justify-between";
+        wrapper.innerHTML = `
+          <div>
+            <p class="font-semibold">${meta?.nameEn || sel.id}</p>
+            <p class="text-xs text-gray-500">${meta?.category || ""}</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="px-2 py-1 text-xs border rounded move-up" data-idx="${idx}">↑</button>
+            <button class="px-2 py-1 text-xs border rounded move-down" data-idx="${idx}">↓</button>
+            <button class="px-2 py-1 text-xs border rounded settings" data-id="${sel.id}">Settings</button>
+            <button class="px-2 py-1 text-xs bg-red-600 text-white rounded remove" data-idx="${idx}">Remove</button>
+          </div>
+        `;
+        box.appendChild(wrapper);
+      });
+    }
+
+    function switchAuth() {
+      const type = document.querySelector('input[name="authType"]:checked').value;
+      $("passwordBox").classList.toggle("hidden", type !== "password");
+      $("keyBox").classList.toggle("hidden", type !== "key");
+    }
+
+    async function loadTemplates() {
+      const res = await fetch("/api/templates");
+      state.templates = await res.json();
+      renderTemplates();
+    }
+
+    function openSettingsModal(templateId) {
+      state.currentTemplateId = templateId;
+      const tpl = state.templates.find((t) => t.id === templateId);
+      $("modalTitle").textContent = `${tpl.nameEn} settings`;
+      const body = $("modalBody");
+      body.innerHTML = "";
+      const current = state.selected.find((t) => t.id === templateId)?.settings || {};
+      const defaults = tpl.defaultSettings || {};
+      Object.keys(defaults).forEach((key) => {
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = `
+          <label class="text-sm font-medium">${key}</label>
+          <input data-key="${key}" class="mt-1 w-full rounded border-gray-300 dark:border-gray-700 dark:bg-slate-900" value="${current[key] ?? defaults[key] ?? ""}">
+        `;
+        body.appendChild(wrapper);
+      });
+      $("settingsModal").classList.remove("hidden");
+      $("settingsModal").classList.add("flex");
+    }
+
+    function closeModal() {
+      $("settingsModal").classList.add("hidden");
+      $("settingsModal").classList.remove("flex");
+    }
+
+    function persistSettings() {
+      const tplId = state.currentTemplateId;
+      const inputs = $("modalBody").querySelectorAll("input[data-key]");
+      const settings = {};
+      inputs.forEach((input) => (settings[input.dataset.key] = input.value));
+      const idx = state.selected.findIndex((s) => s.id === tplId);
+      if (idx >= 0) state.selected[idx].settings = settings;
+      closeModal();
+    }
+
+    async function testConnection() {
+      const payload = gatherServerPayload();
+      payload.expectedFingerprint = $("expectedFingerprint").value || undefined;
+      const res = await fetch("/api/test-ssh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const box = $("testResult");
+      const data = await res.json();
+      box.innerHTML = "";
+      if (data.ok) {
+        box.innerHTML = `
+          <p class="text-green-600">Connection OK</p>
+          <p class="text-xs">Fingerprint: ${data.fingerprint}</p>
+          <p class="text-xs">OS: ${data.preflight.os} | sudo: ${data.preflight.sudo}</p>
+          <p class="text-xs">CPU: ${data.preflight.cpuCores} cores | RAM: ${data.preflight.ramMb} MB | Disk: ${data.preflight.diskFreeGb} GB free</p>
+        `;
+      } else {
+        box.innerHTML = `<p class="text-red-600">Error: ${data.error || "Unknown"}</p>${data.fingerprint ? `<p class="text-xs">Fingerprint: ${data.fingerprint}</p>` : ""}`;
+      }
+    }
+
+    function gatherServerPayload() {
+      const authType = document.querySelector('input[name="authType"]:checked').value;
+      const auth = authType === "password"
+        ? { type: "password", password: $("authPassword").value }
+        : { type: "key", privateKey: $("authKey").value, passphrase: $("authKeyPassphrase").value || undefined };
+      return {
+        host: $("serverHost").value,
+        port: Number($("serverPort").value || 22),
+        username: $("serverUser").value,
+        auth,
+      };
+    }
+
+    function gatherOffline() {
+      const enabled = $("networkToggle").checked;
+      return {
+        enabled,
+        aptProxy: enabled ? $("aptProxy").value || null : null,
+        dockerRegistry: enabled ? $("dockerRegistry").value || null : null,
+        artifactMirror: enabled ? $("artifactMirror").value || null : null,
+      };
+    }
+
+    async function startRun() {
+      if (!state.selected.length) {
+        alert("Select at least one template");
+        return;
+      }
+      const payload = {
+        server: gatherServerPayload(),
+        templates: state.selected,
+        offline: gatherOffline(),
+      };
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      state.runId = data.runId;
+      $("runStatus").textContent = "queued";
+      $("downloadLogs").href = `/api/run/${state.runId}/logs`;
+      addLog(`Run started: ${state.runId}`);
+      subscribeToLogs();
+    }
+
+    async function refreshSummary() {
+      if (!state.runId) return;
+      const res = await fetch(`/api/run/${state.runId}`);
+      const data = await res.json();
+      $("runStatus").textContent = data.status;
+      $("runStep").textContent = data.currentStep || "-";
+      $("progressBar").style.width = `${data.progress || 0}%`;
+      state.outputs = data.outputs || {};
+      const summary = $("summary");
+      summary.innerHTML = "";
+      Object.entries(state.outputs).forEach(([key, val]) => {
+        const line = document.createElement("div");
+        line.className = "border border-gray-200 dark:border-gray-700 rounded p-2";
+        line.innerHTML = `<p class="font-semibold">${key}</p><pre class="text-xs mt-1 whitespace-pre-wrap">${JSON.stringify(val, null, 2)}</pre>`;
+        summary.appendChild(line);
+      });
+    }
+
+    function subscribeToLogs() {
+      if (!state.runId) return;
+      const evtSource = new EventSource(`/api/run/${state.runId}/stream`);
+      evtSource.addEventListener("log", (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          addLog(`${data.ts} [${data.level}] ${data.message}`, data.level);
+          if (data.progress !== undefined) $("progressBar").style.width = `${data.progress}%`;
+          if (data.step) $("runStep").textContent = data.step;
+        } catch {
+          addLog(event.data);
+        }
+      });
+      evtSource.addEventListener("done", (event) => {
+        const data = JSON.parse(event.data);
+        $("runStatus").textContent = data.status;
+        addLog(`Run finished: ${data.status}`);
+        evtSource.close();
+        refreshSummary();
+      });
+    }
+
+    function setupTabs() {
+      document.querySelectorAll(".config-tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".config-tab").forEach((b) => b.classList.remove("border-b-2", "border-indigo-600"));
+          btn.classList.add("border-b-2", "border-indigo-600");
+          document.querySelectorAll("[data-pane]").forEach((pane) => pane.classList.add("hidden"));
+          document.querySelector(`[data-pane="${btn.dataset.tab}"]`).classList.remove("hidden");
+        });
+      });
+      document.querySelectorAll(".cat-tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".cat-tab").forEach((b) => b.classList.remove("bg-indigo-600", "text-white"));
+          btn.classList.add("bg-indigo-600", "text-white");
+          renderTemplates(btn.dataset.cat);
+        });
+      });
+    }
+
+    function setupThemeControls() {
+      $("themeToggle").addEventListener("change", (e) => {
+        document.documentElement.classList.toggle("dark", e.target.checked);
+      });
+      $("rtlToggle").addEventListener("change", (e) => {
+        document.documentElement.dir = e.target.checked ? "rtl" : "ltr";
+      });
+      $("langToggle").addEventListener("change", (e) => {
+        document.querySelectorAll("[data-lang-fa]").forEach((el) => {
+          el.textContent = e.target.checked ? el.dataset.langFa : el.dataset.langEn;
+        });
+      });
+    }
+
+    function setupActions() {
+      document.body.addEventListener("click", (e) => {
+        if (e.target.classList.contains("add-btn")) {
+          const id = e.target.dataset.id;
+          if (!state.selected.some((s) => s.id === id)) state.selected.push({ id, settings: {} });
+          renderSelected();
+        }
+        if (e.target.classList.contains("remove")) {
+          state.selected.splice(Number(e.target.dataset.idx), 1);
+          renderSelected();
+        }
+        if (e.target.classList.contains("move-up")) {
+          const idx = Number(e.target.dataset.idx);
+          if (idx > 0) [state.selected[idx - 1], state.selected[idx]] = [state.selected[idx], state.selected[idx - 1]];
+          renderSelected();
+        }
+        if (e.target.classList.contains("move-down")) {
+          const idx = Number(e.target.dataset.idx);
+          if (idx < state.selected.length - 1) [state.selected[idx + 1], state.selected[idx]] = [state.selected[idx], state.selected[idx + 1]];
+          renderSelected();
+        }
+        if (e.target.classList.contains("settings")) {
+          openSettingsModal(e.target.dataset.id);
+        }
+      });
+
+      $("closeModal").addEventListener("click", closeModal);
+      $("saveSettings").addEventListener("click", persistSettings);
+      $("settingsModal").addEventListener("click", (e) => {
+        if (e.target.id === "settingsModal") closeModal();
+      });
+
+      document.querySelectorAll('input[name="authType"]').forEach((el) => el.addEventListener("change", switchAuth));
+      $("testBtn").addEventListener("click", testConnection);
+      $("startBtn").addEventListener("click", startRun);
+      $("copyOutputs").addEventListener("click", () => {
+        navigator.clipboard.writeText(JSON.stringify(state.outputs, null, 2));
+        alert("Outputs copied");
+      });
+      $("networkToggle").addEventListener("change", () => {
+        $("networkLabel").textContent = $("networkToggle").checked ? "Offline Mode" : "Network Mode";
+      });
+    }
+
+    function init() {
+      loadTemplates();
+      switchAuth();
+      setupTabs();
+      setupThemeControls();
+      setupActions();
+    }
+
+    init();
+  </script>
+</body>
+</html>

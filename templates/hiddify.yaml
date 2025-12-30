@@ -1,0 +1,12 @@
+id: hiddify
+nameFa: هیدیفای
+nameEn: Hiddify
+category: Panels
+ports:
+  - 8443
+supportsOffline: true
+requirements:
+  - docker
+defaultSettings:
+  admin_email: ""
+  enable_tls: true

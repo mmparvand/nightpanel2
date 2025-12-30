@@ -1,0 +1,12 @@
+id: 3x-ui
+nameFa: تری ایکس یوآی
+nameEn: 3x-ui Panel
+category: Panels
+ports:
+  - 2053
+supportsOffline: true
+requirements:
+  - docker
+defaultSettings:
+  admin_user: "admin"
+  admin_pass: ""

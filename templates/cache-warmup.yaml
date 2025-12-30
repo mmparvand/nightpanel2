@@ -1,0 +1,14 @@
+id: cache-warmup
+nameFa: پیش‌گرم‌سازی کش
+nameEn: Cache Warmup
+category: Core
+ports: []
+supportsOffline: true
+requirements: []
+defaultSettings:
+  apt_lists:
+    - curl
+    - docker.io
+  docker_images:
+    - nginx:latest
+  artifact_urls: []
