@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/yourusername/nightpanel2.git}"
+REPO_URL="${REPO_URL:-https://github.com/mmparvand/nightpanel2.git}"
 INSTALL_DIR="/opt/warops"
 SERVICE_NAME="warops"
 ENV_FILE="/etc/warops.env"
