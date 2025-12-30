@@ -1,0 +1,13 @@
+id: nginx
+nameFa: انجینیکس
+nameEn: Nginx
+category: Core
+ports:
+  - 80
+  - 443
+supportsOffline: true
+requirements: []
+defaultSettings:
+  enable_ssl: false
+  domain: ""
+  email: ""

@@ -1,0 +1,12 @@
+id: marzban
+nameFa: مرزبن
+nameEn: Marzban Panel
+category: Panels
+ports:
+  - 443
+supportsOffline: true
+requirements:
+  - docker
+defaultSettings:
+  admin_email: ""
+  enable_monitoring: true

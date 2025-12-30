@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WarOps Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100">
+  <div class="max-w-6xl mx-auto p-6 space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold">Admin Panel</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Runs, templates, server info</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" id="adminTheme" class="accent-indigo-600">
+          <span>Dark</span>
+        </label>
+        <a href="/" class="text-indigo-600 text-sm underline">Back to User Panel</a>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="md:col-span-2 bg-white dark:bg-slate-800 shadow rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold">Runs (in-memory)</h2>
+          <button id="refreshRuns" class="px-3 py-2 text-sm bg-indigo-600 text-white rounded">Refresh</button>
+        </div>
+        <div class="mt-3 divide-y divide-gray-200 dark:divide-gray-700" id="runsList"></div>
+      </div>
+      <div class="bg-white dark:bg-slate-800 shadow rounded-lg p-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold">Templates</h2>
+          <button id="refreshTemplates" class="px-3 py-2 text-sm bg-indigo-600 text-white rounded">Reload</button>
+        </div>
+        <div class="mt-3 space-y-2 text-sm" id="templatesBox"></div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 shadow rounded-lg p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Server Info</h2>
+        <button id="refreshInfo" class="px-3 py-2 text-sm bg-indigo-600 text-white rounded">Refresh</button>
+      </div>
+      <div id="infoBox" class="mt-3 text-sm text-gray-700 dark:text-gray-200">Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function renderRuns(runs) {
+      const box = $("runsList");
+      box.innerHTML = "";
+      if (!runs.length) {
+        box.innerHTML = '<p class="text-sm text-gray-500">No runs yet</p>';
+        return;
+      }
+      runs.forEach((run) => {
+        const item = document.createElement("div");
+        item.className = "py-2";
+        item.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold">Run #${run.id}</p>
+              <p class="text-xs text-gray-500">Status: ${run.status} | Step: ${run.currentStep || "-"} | Progress: ${run.progress}%</p>
+            </div>
+            <a href="/api/run/${run.id}/logs" class="text-indigo-600 text-sm underline">Logs</a>
+          </div>
+          <pre class="mt-2 bg-gray-900 text-gray-100 rounded p-2 text-xs overflow-x-auto">${JSON.stringify(run.outputs || {}, null, 2)}</pre>
+        `;
+        box.appendChild(item);
+      });
+    }
+
+    function renderTemplates(list) {
+      const box = $("templatesBox");
+      box.innerHTML = "";
+      list.forEach((tpl) => {
+        const item = document.createElement("div");
+        item.className = "border border-gray-200 dark:border-gray-700 rounded p-2";
+        item.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-semibold">${tpl.nameEn}</p>
+              <p class="text-xs text-gray-500">${tpl.category} | Offline: ${tpl.supportsOffline ? "Yes" : "No"}</p>
+            </div>
+            <span class="text-xs text-gray-500">Ports: ${tpl.ports.join(", ") || "N/A"}</span>
+          </div>
+        `;
+        box.appendChild(item);
+      });
+    }
+
+    async function loadRuns() {
+      const res = await fetch("/api/runs");
+      renderRuns(await res.json());
+    }
+
+    async function loadTemplates() {
+      const res = await fetch("/api/templates");
+      renderTemplates(await res.json());
+    }
+
+    async function loadInfo() {
+      const res = await fetch("/api/admin/info");
+      const data = await res.json();
+      $("infoBox").innerHTML = `
+        <p><strong>Backend version:</strong> ${data.version}</p>
+        <p><strong>Uptime:</strong> ${data.uptimeSeconds} seconds</p>
+      `;
+    }
+
+    function setup() {
+      $("refreshRuns").addEventListener("click", loadRuns);
+      $("refreshTemplates").addEventListener("click", loadTemplates);
+      $("refreshInfo").addEventListener("click", loadInfo);
+      $("adminTheme").addEventListener("change", (e) => {
+        document.documentElement.classList.toggle("dark", e.target.checked);
+      });
+      loadRuns();
+      loadTemplates();
+      loadInfo();
+    }
+
+    setup();
+  </script>
+</body>
+</html>

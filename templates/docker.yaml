@@ -1,0 +1,10 @@
+id: docker
+nameFa: داکر
+nameEn: Docker Engine
+category: Core
+ports:
+  - 2375
+supportsOffline: true
+requirements: []
+defaultSettings:
+  rebootAfter: false
